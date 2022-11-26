@@ -1,25 +1,59 @@
-const API_URL = `https://jsonplaceholder.typicode.com/posts`
+/*
+ *   Constants
+ */
+const API_URL = `https://jsonplaceholder.typicode.com/posts`;
+const LOADER_URL = `https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif?20151024034921`;
 
-const postsNode = document.getElementById('posts')
-const postsGetButtonNode = document.getElementById('postsGetButton')
+/*
+ *   DOM Elements
+ */
+const buttonElement = document.getElementById("postsGetButton");
+const listElement = document.getElementById("posts");
+const bodyElement = document.querySelector("body");
 
-const getPosts = () => {
-    fetch(API_URL)
-        .then(response => response.json())
-        .then(data => {
-            data.forEach(el => {
-                const newLiNode = document.createElement('li')
-                const newTitleNode = document.createElement('div')
-                const newBodyNode = document.createElement('div')
+buttonElement.addEventListener("click", buttonClickHandler);
 
-                newTitleNode.innerHTML = el.title
-                newBodyNode.innerHTML = el.body
-                newLiNode.appendChild(newTitleNode)
-                newLiNode.appendChild(newBodyNode)
-
-                postsNode.appendChild(newLiNode)
-            });
-        })
+/*
+ *   Functions
+ */
+function createLoader() {
+  const loader = document.createElement("img");
+  loader.src = LOADER_URL;
+  return loader;
 }
 
-postsGetButtonNode.addEventListener('click', getPosts)
+async function getPosts() {
+  return fetch(API_URL).then((res) => res.json());
+}
+
+function buttonClickHandler() {
+  renderLoader();
+  getPosts().then(renderPostsOnDocument).finally(onPostsLoaded);
+}
+
+function renderPostsOnDocument(posts) {
+  posts.forEach((post) => {
+    const listItem = document.createElement("li");
+    listItem.innerHTML = post.title;
+    listElement.appendChild(listItem);
+  });
+}
+
+function renderLoader() {
+  const loader = createLoader();
+  bodyElement.appendChild(loader);
+}
+
+function removeLoader() {
+  const loader = document.querySelector("img");
+  loader.remove();
+}
+
+function disableButton() {
+  buttonElement.disabled = true;
+}
+
+function onPostsLoaded() {
+  removeLoader();
+  disableButton();
+}
